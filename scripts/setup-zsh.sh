@@ -140,7 +140,6 @@ plugins=(
   npm
   gradle
   mvn
-  kotlin
   vscode
   macos
   zsh-autosuggestions
@@ -158,14 +157,17 @@ plugins=(
 source "$ZSH/oh-my-zsh.sh"
 
 # ── Homebrew ──────────────────────────────────────────────────────────────────
-eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv)"
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -f /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
 # ── Starship Prompt ───────────────────────────────────────────────────────────
 eval "$(starship init zsh)"
 
 # ── PATH ──────────────────────────────────────────────────────────────────────
 export PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
-export PATH="$HOME/.pyenv/bin:$PATH"
 export PATH="$(brew --prefix)/opt/openjdk@21/bin:$PATH"
 
 # ── Java / Kotlin ─────────────────────────────────────────────────────────────
@@ -173,6 +175,7 @@ export JAVA_HOME="$(brew --prefix openjdk@21 2>/dev/null)/libexec/openjdk.jdk/Co
 
 # ── pyenv ─────────────────────────────────────────────────────────────────────
 export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
 # ── nvm ───────────────────────────────────────────────────────────────────────
@@ -184,7 +187,6 @@ export NVM_DIR="$HOME/.nvm"
 eval "$(zoxide init zsh)"
 
 # ── fzf ───────────────────────────────────────────────────────────────────────
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
@@ -336,6 +338,17 @@ bindkey "^[[1;5D" backward-word  # Ctrl+Left
 ZSHRC
 
 echo "  ✔  ~/.zshrc written"
+
+# ── .zprofile ─────────────────────────────────────────────────────────────────
+# Needed so pyenv shims are on PATH for non-interactive (login) shells / scripts
+echo "  ➜  Writing ~/.zprofile..."
+cat > "$HOME/.zprofile" << 'ZPROFILE'
+# pyenv — must be in .zprofile so shims are available in non-interactive shells
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+ZPROFILE
+echo "  ✔  ~/.zprofile written"
 
 # Set zsh as default shell
 if [[ "$SHELL" != "$(which zsh)" ]]; then

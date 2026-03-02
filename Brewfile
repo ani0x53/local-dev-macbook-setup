@@ -26,17 +26,13 @@ brew "openssh"
 
 # ── Shell ─────────────────────────────────────────────────────────────────────
 brew "zsh"
-brew "zsh-autosuggestions"
-brew "zsh-syntax-highlighting"
 brew "starship"
 brew "tmux"
 brew "neovim"
 
 # ── Dev ───────────────────────────────────────────────────────────────────────
-brew "python@3.12"
 brew "pyenv"
 brew "pipx"
-brew "node"
 brew "nvm"
 brew "maven"
 brew "gradle"

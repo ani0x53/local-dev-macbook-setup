@@ -63,9 +63,9 @@ That's it. Go make a coffee — it takes ~15 minutes.
 | OpenJDK | 21 LTS | Java development |
 | Kotlin | Latest | Kotlin development |
 | Maven + Gradle | Latest | JVM build tools |
-| Python | 3.12 (via pyenv) | Python development |
-| Node.js | LTS (via nvm) | JS/tooling |
-| AWS CLI | v2 | AWS access |
+| Python | 3.12 via pyenv | Python development |
+| Node.js | LTS via nvm | JS/tooling |
+| AWS CLI | v2 via brew | AWS access |
 | Terraform | Latest | Infrastructure as code |
 | Docker Compose | Latest | Container orchestration |
 
@@ -91,7 +91,7 @@ Claude Code CLI (`claude`) — installed via npm.
 | Rectangle | Window management (`Ctrl+Alt+←/→` to snap) |
 | Raycast | App launcher & productivity tools |
 | Postman | API testing |
-| Arc | Modern browser *(optional — remove from setup.sh if you prefer another)* |
+| Arc | Modern browser *(optional — remove from `setup.sh` if you prefer another)* |
 
 ---
 
@@ -108,7 +108,7 @@ Installs [Oh My Zsh](https://ohmyz.sh/) with a curated plugin set and the [Stars
 - `fzf` — fuzzy history (`Ctrl+R`)
 - `sudo` — press `ESC` twice to prepend `sudo`
 - `z` — jump to recent directories
-- `git`, `docker`, `aws`, `python`, `gradle`, `mvn`, `kotlin`, and more
+- `git`, `docker`, `aws`, `python`, `gradle`, `mvn`, `macos`, and more
 
 ### Key Aliases
 
@@ -184,6 +184,28 @@ newpr                   # open new GitHub PR in browser
 
 ---
 
+## SSH Key for GitHub
+
+The setup script will prompt you to generate an SSH key during installation. If you skip it or run via the one-liner `curl | bash` (which is non-interactive), you can run it any time:
+
+```bash
+bash scripts/setup-ssh.sh
+```
+
+What it does:
+- Generates an `ed25519` key at `~/.ssh/id_ed25519`
+- Adds it to the macOS Keychain so you never need to enter a passphrase
+- Writes `~/.ssh/config` so the key persists across reboots
+- Copies the public key to your clipboard and opens `github.com/settings/ssh/new`
+
+Verify it worked:
+```bash
+ssh -T git@github.com
+# Hi your-username! You've successfully authenticated...
+```
+
+---
+
 ## iTerm2 Profile
 
 A **"Dev"** Dynamic Profile is automatically installed with:
@@ -226,13 +248,16 @@ git config --global user.email "you@example.com"
 # 2. Authenticate GitHub CLI
 gh auth login
 
-# 3. Configure AWS credentials
+# 3. Set up SSH key for GitHub (if you skipped during setup)
+bash scripts/setup-ssh.sh
+
+# 4. Configure AWS credentials
 aws configure
 
-# 4. Reload your shell
+# 5. Reload your shell
 source ~/.zshrc
 
-# 5. Start Claude Code
+# 6. Start Claude Code
 claude
 ```
 
@@ -248,6 +273,7 @@ local-dev-macbook-setup/
 │   ├── macos-defaults.sh     # Sensible macOS system preferences
 │   ├── setup-zsh.sh          # Oh My Zsh, plugins, .zshrc
 │   ├── setup-git.sh          # Git globals and aliases
+│   ├── setup-ssh.sh          # SSH key generation for GitHub (optional)
 │   ├── setup-iterm.sh        # iTerm2 profile
 │   └── setup-vscode.sh       # Extensions and settings.json
 └── README.md

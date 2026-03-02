@@ -141,3 +141,7 @@ cat > "$VSCODE_SETTINGS" << 'SETTINGS'
 SETTINGS
 
 echo "  ✔  VS Code settings.json written"
+
+# Fix Java path for the current architecture (Apple Silicon vs Intel)
+JAVA_HOME_PATH="$(brew --prefix openjdk@21 2>/dev/null)/libexec/openjdk.jdk/Contents/Home"
+sed -i '' "s|/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home|$JAVA_HOME_PATH|g" "$VSCODE_SETTINGS"

@@ -100,15 +100,11 @@ FORMULAE=(
 
   # Shell
   zsh
-  zsh-autosuggestions
-  zsh-syntax-highlighting
   starship            # cross-shell prompt
 
   # Dev tools
-  python@3.12
   pyenv
   pipx
-  node
   nvm
   maven
   gradle
@@ -151,7 +147,6 @@ CASKS=(
   rectangle           # window manager
   raycast             # launcher / productivity
   arc                 # modern browser (optional, remove if preferred)
-  fig                 # terminal autocomplete (optional)
   postman
 )
 
@@ -190,27 +185,27 @@ pipx install black  || true
 pipx install ruff   || true
 success "Poetry, Black, Ruff installed via pipx"
 
+# ── Node.js via nvm ───────────────────────────────────────────────────────────
+header "Node.js"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$(brew --prefix)/opt/nvm/nvm.sh" ] && source "$(brew --prefix)/opt/nvm/nvm.sh"
+if ! command -v node &>/dev/null; then
+  info "Installing Node.js LTS via nvm..."
+  nvm install --lts
+  nvm alias default lts/*
+  success "Node.js $(node --version) set as default"
+else
+  success "Node.js $(node --version) already available"
+fi
+
 # ── Claude Code ───────────────────────────────────────────────────────────────
 header "Claude Code"
 if ! command -v claude &>/dev/null; then
   info "Installing Claude Code via npm..."
   npm install -g @anthropic-ai/claude-code
-  success "Claude Code installed: $(claude --version 2>/dev/null || echo 'installed')"
+  success "Claude Code installed"
 else
   success "Claude Code already installed"
-fi
-
-# ── AWS CLI ───────────────────────────────────────────────────────────────────
-header "AWS CLI"
-if ! command -v aws &>/dev/null; then
-  info "Installing AWS CLI v2..."
-  TMPDIR=$(mktemp -d)
-  curl -fsSL "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "$TMPDIR/AWSCLIV2.pkg"
-  sudo installer -pkg "$TMPDIR/AWSCLIV2.pkg" -target /
-  rm -rf "$TMPDIR"
-  success "AWS CLI installed: $(aws --version)"
-else
-  success "AWS CLI already installed: $(aws --version)"
 fi
 
 # ── ZSH Configuration ─────────────────────────────────────────────────────────
@@ -224,6 +219,15 @@ bash "$(dirname "$0")/scripts/setup-iterm.sh"
 # ── Git Config ────────────────────────────────────────────────────────────────
 header "Git Configuration"
 bash "$(dirname "$0")/scripts/setup-git.sh"
+
+# ── SSH Key for GitHub (optional, interactive only) ───────────────────────────
+header "SSH Key for GitHub"
+if [[ -t 0 ]]; then
+  bash "$(dirname "$0")/scripts/setup-ssh.sh"
+else
+  warn "Non-interactive mode detected — skipping SSH key setup."
+  info "Run afterwards: bash scripts/setup-ssh.sh"
+fi
 
 # ── VS Code Extensions ────────────────────────────────────────────────────────
 header "VS Code Extensions"
@@ -245,4 +249,5 @@ echo -e "  2. Run ${CYAN}git config --global user.email \"you@example.com\"${RES
 echo -e "  3. Run ${CYAN}gh auth login${RESET} to authenticate with GitHub"
 echo -e "  4. Run ${CYAN}aws configure${RESET} to set up AWS credentials"
 echo -e "  5. Run ${CYAN}claude${RESET} to start using Claude Code"
+echo -e "  6. SSH key: ${CYAN}bash scripts/setup-ssh.sh${RESET} if you skipped it above"
 echo ""

@@ -189,7 +189,7 @@ newpr                   # open new GitHub PR in browser
 A **"Dev"** Dynamic Profile is automatically installed with:
 
 - JetBrains Mono Nerd Font 14pt
-- Dark background with subtle transparency + blur
+- Pure black background
 - 10,000 line scrollback
 - Cursor guide enabled
 - Smooth cursor animations

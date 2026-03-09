@@ -1,19 +1,17 @@
-# mac-setup
+# ubuntu-setup
 
-> One-command macOS developer environment setup for Java, Kotlin & Python development.
-
-**Looking for Ubuntu?** See the [Ubuntu setup guide](ubuntu/README.md) in the `ubuntu/` folder.
+> One-command Ubuntu developer environment setup for Java, Kotlin & Python development.
 
 ---
 
-## Quick Start (macOS)
+## Quick Start
 
-**Option 1 — Download ZIP**
+**Option 1 — Download the full repo ZIP**
 
 Go to [github.com/ani0x53/local-dev-macbook-setup](https://github.com/ani0x53/local-dev-macbook-setup), click **Code → Download ZIP**, unzip it, then run:
 
 ```bash
-cd local-dev-macbook-setup-main
+cd local-dev-macbook-setup-main/ubuntu
 chmod +x setup.sh scripts/*.sh
 ./setup.sh
 ```
@@ -22,7 +20,7 @@ chmod +x setup.sh scripts/*.sh
 
 ```bash
 git clone https://github.com/ani0x53/local-dev-macbook-setup.git
-cd local-dev-macbook-setup
+cd local-dev-macbook-setup/ubuntu
 chmod +x setup.sh scripts/*.sh
 ./setup.sh
 ```
@@ -30,7 +28,7 @@ chmod +x setup.sh scripts/*.sh
 **Option 3 — Run directly**
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ani0x53/local-dev-macbook-setup/main/setup.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/ani0x53/local-dev-macbook-setup/main/ubuntu/setup.sh)"
 ```
 
 That's it. Go make a coffee — it takes ~15 minutes.
@@ -63,13 +61,14 @@ That's it. Go make a coffee — it takes ~15 minutes.
 | Tool | Version | Purpose |
 |------|---------|---------|
 | OpenJDK | 21 LTS | Java development |
-| Kotlin | Latest | Kotlin development |
-| Maven + Gradle | Latest | JVM build tools |
+| Kotlin | Latest via SDKMAN | Kotlin development |
+| Maven | Latest via apt | JVM build tool |
+| Gradle | Latest via SDKMAN | JVM build tool |
 | Python | 3.12 via pyenv | Python development |
 | Node.js | LTS via nvm | JS/tooling |
-| AWS CLI | v2 via brew | AWS access |
+| AWS CLI | v2 | AWS access |
 | Terraform | Latest | Infrastructure as code |
-| Docker Compose | Latest | Container orchestration |
+| Docker | docker.io + compose v2 | Containers |
 
 ### Python Extras (via pipx)
 
@@ -83,17 +82,12 @@ Claude Code CLI (`claude`) — installed via npm.
 
 ### GUI Applications
 
-| App | Purpose |
-|-----|---------|
-| iTerm2 | Terminal emulator |
-| VS Code | Code editor |
-| Sublime Text | Lightweight editor |
-| IntelliJ IDEA CE | Java/Kotlin IDE |
-| Docker Desktop | Container management |
-| Rectangle | Window management (`Ctrl+Alt+←/→` to snap) |
-| Raycast | App launcher & productivity tools |
-| Postman | API testing |
-| Arc | Modern browser *(optional — remove from `setup.sh` if you prefer another)* |
+| App | Source | Purpose |
+|-----|--------|---------|
+| VS Code | apt (Microsoft repo) | Code editor |
+| Sublime Text | apt (official repo) | Lightweight editor |
+| IntelliJ IDEA CE | snap | Java/Kotlin IDE |
+| Postman | snap | API testing |
 
 ---
 
@@ -110,7 +104,7 @@ Installs [Oh My Zsh](https://ohmyz.sh/) with a curated plugin set and the [Stars
 - `fzf` — fuzzy history (`Ctrl+R`)
 - `sudo` — press `ESC` twice to prepend `sudo`
 - `z` — jump to recent directories
-- `git`, `docker`, `aws`, `python`, `gradle`, `mvn`, `macos`, and more
+- `git`, `docker`, `aws`, `python`, `gradle`, `mvn`, `ubuntu`, and more
 
 ### Key Aliases
 
@@ -164,19 +158,26 @@ awsw  → whoami (sts get-caller-identity)
 cc    → claude
 ccc   → claude --continue
 
+# Ubuntu-specific
+update    → apt update + upgrade
+install   → apt install
+autoremove → apt autoremove
+sctl      → sudo systemctl
+open      → xdg-open
+
 # Misc
 cat   → bat (syntax highlighted)
-ports → show listening ports
+ports → show listening ports (ss)
 myip  → show public IP
 reload → reload .zshrc
-flushdns → flush DNS cache
+flushdns → flush DNS cache (resolvectl)
 ```
 
 ### Useful Functions
 
 ```bash
 mkcd my-project         # mkdir + cd in one
-extract archive.tar.gz  # universal extractor
+extract archive.tar.gz  # universal extractor (supports .deb too)
 weather London          # show weather
 jdk 17                  # switch Java version
 port 8080               # what's on port 8080?
@@ -196,9 +197,9 @@ bash scripts/setup-ssh.sh
 
 What it does:
 - Generates an `ed25519` key at `~/.ssh/id_ed25519`
-- Adds it to the macOS Keychain so you never need to enter a passphrase
-- Writes `~/.ssh/config` so the key persists across reboots
-- Copies the public key to your clipboard and opens `github.com/settings/ssh/new`
+- Adds it to the SSH agent
+- Writes `~/.ssh/config` so the key persists
+- Copies the public key to your clipboard (via `xclip`) and opens `github.com/settings/ssh/new`
 
 Verify it worked:
 ```bash
@@ -208,15 +209,27 @@ ssh -T git@github.com
 
 ---
 
-## iTerm2 Profile
+## GNOME Terminal Profile
 
-A **"Dev"** Dynamic Profile is automatically installed with:
+The default GNOME Terminal profile is configured with:
 
 - JetBrains Mono Nerd Font 14pt
 - Pure black background
 - 10,000 line scrollback
-- Cursor guide enabled
-- Smooth cursor animations
+- I-beam cursor with blinking
+- No audible bell
+
+---
+
+## GNOME Desktop Defaults
+
+- Dark mode enabled
+- 24h clock format
+- Tap-to-click on touchpad
+- Edge tiling for window snapping
+- Fast key repeat
+- Auto-cleanup of old trash and temp files
+- 15 min screen blank, no sleep on AC power
 
 ---
 
@@ -243,23 +256,25 @@ Settings are also written to `settings.json` — One Dark Pro theme, JetBrains M
 After the script finishes, run these once:
 
 ```bash
-# 1. Set your Git identity
+# 1. Log out and back in (for Docker group + ZSH)
+
+# 2. Set your Git identity
 git config --global user.name  "Your Name"
 git config --global user.email "you@example.com"
 
-# 2. Authenticate GitHub CLI
+# 3. Authenticate GitHub CLI
 gh auth login
 
-# 3. Set up SSH key for GitHub (if you skipped during setup)
+# 4. Set up SSH key for GitHub (if you skipped during setup)
 bash scripts/setup-ssh.sh
 
-# 4. Configure AWS credentials
+# 5. Configure AWS credentials
 aws configure
 
-# 5. Reload your shell
+# 6. Reload your shell
 source ~/.zshrc
 
-# 6. Start Claude Code
+# 7. Start Claude Code
 claude
 ```
 
@@ -268,16 +283,16 @@ claude
 ## Repository Structure
 
 ```
-local-dev-macbook-setup/
+ubuntu-setup/
 ├── setup.sh                  # Main entry point
-├── Brewfile                  # All Homebrew packages (for brew bundle)
 ├── scripts/
-│   ├── macos-defaults.sh     # Sensible macOS system preferences
+│   ├── gnome-defaults.sh     # Sensible GNOME desktop preferences
 │   ├── setup-zsh.sh          # Oh My Zsh, plugins, .zshrc
 │   ├── setup-git.sh          # Git globals and aliases
 │   ├── setup-ssh.sh          # SSH key generation for GitHub (optional)
-│   ├── setup-iterm.sh        # iTerm2 profile
-│   └── setup-vscode.sh       # Extensions and settings.json
+│   ├── setup-terminal.sh     # GNOME Terminal profile
+│   ├── setup-vscode.sh       # VS Code install, extensions, settings.json
+│   └── setup-apps.sh         # GUI applications (Sublime, IntelliJ, Postman)
 └── README.md
 ```
 
@@ -290,8 +305,7 @@ The script is **idempotent** — safe to run multiple times. Already-installed i
 To update packages only:
 
 ```bash
-brew update && brew upgrade
-brew upgrade --cask
+sudo apt update && sudo apt upgrade -y
 ```
 
 To re-run just one component:
@@ -306,29 +320,31 @@ To re-run just one component:
 ## Customisation
 
 - Add personal overrides to `~/.zshrc.local` (auto-sourced, never overwritten by re-runs)
-- Edit `Brewfile` and run `brew bundle` to install/remove packages declaratively
 - Edit `scripts/setup-vscode.sh` to add your own extensions
-- Remove the `arc` cask from `setup.sh` if you prefer a different browser
+- Edit `scripts/setup-apps.sh` to add/remove GUI applications
 
 ---
 
-## Manual Steps (Can't Be Automated)
+## Key Differences from mac-setup
 
-| Step | Why |
-|------|-----|
-| System Integrity Protection (SIP) | Requires boot into Recovery Mode |
-| FileVault | Personal security decision |
-| iCloud / Apple ID sign-in | GUI only |
-| Xcode full install | Large download, optional |
-| IntelliJ license | Requires JetBrains account |
+| Feature | mac-setup | ubuntu-setup |
+|---------|-----------|-------------|
+| Package manager | Homebrew | apt + snap |
+| Terminal | iTerm2 | GNOME Terminal |
+| Window manager | Rectangle | GNOME edge tiling |
+| Launcher | Raycast | GNOME Activities |
+| Desktop config | `defaults write` | `gsettings` |
+| Docker | Docker Desktop (cask) | docker.io (apt) |
+| JVM tools | Homebrew | SDKMAN (Gradle, Kotlin) |
+| Clipboard | `pbcopy` | `xclip` / `xsel` |
+| Open URLs | `open` | `xdg-open` |
 
 ---
 
 ## Tested On
 
-- macOS Sequoia 15.x (Apple Silicon & Intel)
-- macOS Sonoma 14.x
-- macOS Ventura 13.x
+- Ubuntu 24.04 LTS (Noble Numbat) — x86_64 and aarch64
+- Ubuntu 22.04 LTS (Jammy Jellyfish)
 
 ---
 
